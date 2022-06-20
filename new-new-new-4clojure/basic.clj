@@ -98,6 +98,7 @@
 (if (false? (= 4 5))
   :a
   :b)
+
 (> 4 3)
 
 (nil? 0)
@@ -138,8 +139,70 @@
 
 ;; HIGHER ORDER FUNCTION
 
+;;MAP
 ;;The map function relates a sequence to another
-(= (quote (4 8 12))
-   (map (fn
-          [x]
-          (* 4 x)) [1 2 3]))
+;; takes an fn and a seq, returns new seq
+(map (fn
+       [x]
+       (* 4 x)) [1 2 3])
+
+;;FILTER
+
+(filter (fn [x] true) (quote (:anything :goes :here)))
+
+(filter (fn [x] (< x 35)) [10 20 30 40 50 60 70 80])
+
+(defn test-func
+  [x]
+  (and (< x 4) (* x 10)))
+
+(= [10 20 30] (map (fn [x] test-func) (filter (fn [x] test-func) [1 2 3 4 5 6 7 8])))
+
+;; map + filter
+
+(map (fn [x] (and (< x 4) (* x 10)))
+     (filter (fn [x] (and (< x 4) (* x 10)))
+             [1 2 3 4 5 6 7 8]))
+
+;; REDUCE 
+
+(reduce (fn [a b] (* a b)) (* 100) [1 2 3 4])
+
+(count "ewe")
+
+;; ???
+
+(let [hello (fn
+              ([] "Hello World!")
+              ([a] (str "Hello, you silly " a ".")))]
+  (hello "world"))
+
+(let [hello (fn
+              ([] "Hello World!")
+              ([a] (str "Hello, you silly " a "."))
+              ([a & more] (str "Hello to this group: "
+                               (apply str
+                                      (interpose ", " (concat (list a) more)))
+                               "!")))]
+  (hello "Peter" "Paul" "Mary"))
+
+
+;; LAZY SEQ
+
+(repeat 3 :foo)
+
+(take 3 (iterate #(mapcat (flatten (vector %))) :foo))
+
+;; SEQ COMPHRENDE
+(def sepuluh (range 10))
+(= (quote (1 3 5 7 9)) (filter odd? (range 10)) (for [index sepuluh :when (odd? index)] index))
+
+(= [[:top :left] [:top :middle] [:top :right] [:middle :left] [:middle :middle] [:middle :right] [:bottom :left] [:bottom :middle] [:bottom :right]] (for [row [:top :middle :bottom] column [:left :middle :right]] [row column]))
+
+;;FUNCTION
+
+(let [not-a-symbol? (complement symbol?)]
+  (map not-a-symbol? [:a 'b "c"]))
+
+(= [true false true] (let [not-a-symbol? (complement symbol?)]
+                       (map not-a-symbol? [:a 'b "c"])))
